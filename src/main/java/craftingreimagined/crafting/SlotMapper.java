@@ -1,6 +1,5 @@
 package craftingreimagined.crafting;
 
-import net.minecraft.client.renderer.item.properties.numeric.Count;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -8,21 +7,16 @@ import net.minecraft.world.item.ItemStack;
 public final class SlotMapper {
 
     /*
-     * Vanilla crafting table slot layout:
+     * Crafting table:
      *
      * Result: 0
      *
-     * Crafting grid:
-     *  1  2  3
-     *  4  5  6
-     *  7  8  9
+     * 1  2  3
+     * 4  5  6
+     * 7  8  9
      *
      * Main inventory: 10-36
-     * Hotbar:         37-45
-     *
-     * Player inventory indexes:
-     * Hotbar:         0-8
-     * Main inventory: 9-35
+     * Hotbar: 37-45
      */
 
     public static final int RESULT_SLOT = 0;
@@ -39,12 +33,6 @@ public final class SlotMapper {
     private SlotMapper() {
     }
 
-    /**
-     * Converts a player inventory index (0-35)
-     * into a crafting table menu slot (10-45).
-     *
-     * Returns -1 for invalid indexes.
-     */
     public static int inventoryToMenuSlot(int inventoryIndex) {
 
         if (inventoryIndex >= 0 && inventoryIndex <= 8) {
@@ -58,12 +46,6 @@ public final class SlotMapper {
         return -1;
     }
 
-    /**
-     * Converts a crafting table menu slot
-     * into a player inventory index.
-     *
-     * Returns -1 for non-inventory slots.
-     */
     public static int menuToInventorySlot(int menuSlot) {
 
         if (menuSlot >= HOTBAR_START && menuSlot <= HOTBAR_END) {
@@ -79,9 +61,10 @@ public final class SlotMapper {
 
     public static int gridPositionToMenuSlot(int row, int column) {
 
-        if (row < 0 || row < 2 || column < 0 || column > 2) {
+        if (row < 0 || row > 2 || column < 0 || column > 2) {
             return -1;
         }
+
         return GRID_START + row * 3 + column;
     }
 
@@ -97,15 +80,13 @@ public final class SlotMapper {
         return slot >= HOTBAR_START && slot <= HOTBAR_END;
     }
 
-    /// Nauja funkcija nuo cia
-
     public static int findItemSlot(
             CraftingMenu menu,
             Item item,
             int requiredCount
     ) {
 
-        if (menu == null || item == null || requiredCount < 1 ) {
+        if (menu == null || item == null || requiredCount < 1) {
             return -1;
         }
 
@@ -113,15 +94,15 @@ public final class SlotMapper {
 
             int slot = inventoryToMenuSlot(inventoryIndex);
 
-            if (slot >= menu.slots.size()) {
+            if (slot == -1 || slot >= menu.slots.size()) {
                 continue;
             }
 
             ItemStack stack = menu.slots.get(slot).getItem();
 
             if (!stack.isEmpty()
-                && stack.getItem() == item
-                && stack.getCount() >= requiredCount) {
+                    && stack.getItem() == item
+                    && stack.getCount() >= requiredCount) {
 
                 return slot;
             }
@@ -139,8 +120,10 @@ public final class SlotMapper {
         int total = 0;
 
         for (int inventoryIndex = 0; inventoryIndex < 36; inventoryIndex++) {
+
             int slot = inventoryToMenuSlot(inventoryIndex);
-            if (slot >= menu.slots.size()) {
+
+            if (slot == -1 || slot >= menu.slots.size()) {
                 continue;
             }
 
@@ -150,6 +133,7 @@ public final class SlotMapper {
                 total += stack.getCount();
             }
         }
+
         return total;
     }
 
@@ -157,14 +141,17 @@ public final class SlotMapper {
             CraftingMenu menu,
             int inventoryIndex
     ) {
+
+        if (menu == null) {
+            return ItemStack.EMPTY;
+        }
+
         int slot = inventoryToMenuSlot(inventoryIndex);
 
-        if (menu == null || slot == -1 || slot >= menu.slots.size()) {
+        if (slot == -1 || slot >= menu.slots.size()) {
             return ItemStack.EMPTY;
         }
 
         return menu.slots.get(slot).getItem();
     }
 }
-
-

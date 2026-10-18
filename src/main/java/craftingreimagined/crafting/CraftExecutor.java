@@ -22,13 +22,11 @@ public final class CraftExecutor {
     private CraftExecutor() {
     }
 
-
     public record Placement(
             int sourceSlot,
             int gridSlot
     ) {
     }
-
 
     public record InventoryPlacement(
             int inventoryIndex,
@@ -36,7 +34,6 @@ public final class CraftExecutor {
             int column
     ) {
     }
-
 
     public static boolean craftFromInventory(
             int amount,
@@ -74,14 +71,11 @@ public final class CraftExecutor {
                 return fail("Invalid crafting grid position.");
             }
 
-            placements.add(
-                    new Placement(sourceSlot, gridSlot)
-            );
+            placements.add(new Placement(sourceSlot, gridSlot));
         }
 
         return craft(amount, placements);
     }
-
 
     public static boolean craft(
             int amount,
@@ -96,23 +90,19 @@ public final class CraftExecutor {
             return fail("Crafting Reimagined is disabled.");
         }
 
-
         if (!ServerCompatibility.canUseContainerAutomation()) {
             return fail("Container automation is unavailable.");
         }
 
-
         if (ClickQueue.isBusy()) {
             return fail("Another crafting operation is already running.");
         }
-
 
         if (client.player == null ||
                 !(client.player.containerMenu instanceof CraftingMenu menu)) {
 
             return fail("Open a crafting table first.");
         }
-
 
         if (menu.slots.size() < 46) {
             return fail("Unsupported crafting menu layout.");
@@ -122,7 +112,6 @@ public final class CraftExecutor {
             return fail("Craft amount must be between 1 and 64.");
         }
 
-
         if (placements == null ||
                 placements.isEmpty() ||
                 placements.size() > 9) {
@@ -130,23 +119,18 @@ public final class CraftExecutor {
             return fail("Invalid crafting ingredient list.");
         }
 
-
         if (!menu.getCarried().isEmpty()) {
             return fail("Empty your cursor before crafting.");
         }
 
-
-        for (
-                int slot = SlotMapper.GRID_START;
-                slot <= SlotMapper.GRID_END;
-                slot++
-        ) {
+        for (int slot = SlotMapper.GRID_START;
+             slot <= SlotMapper.GRID_END;
+             slot++) {
 
             if (!menu.slots.get(slot).getItem().isEmpty()) {
                 return fail("Clear the crafting grid first.");
             }
         }
-
 
         Set<Integer> usedDestinations = new HashSet<>();
 
@@ -173,18 +157,12 @@ public final class CraftExecutor {
                 return fail("Duplicate crafting grid destination.");
             }
 
-            requiredItems.merge(
-                    source,
-                    amount,
-                    Integer::sum
-            );
+            requiredItems.merge(source, amount, Integer::sum);
         }
-
 
         Map<Integer, Integer> remainingItems = new HashMap<>();
 
-        for (Map.Entry<Integer, Integer> entry
-                : requiredItems.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : requiredItems.entrySet()) {
 
             int source = entry.getKey();
             int required = entry.getValue();
@@ -212,13 +190,8 @@ public final class CraftExecutor {
                 );
             }
 
-            remainingItems.put(
-                    source,
-                    stack.getCount()
-            );
+            remainingItems.put(source, stack.getCount());
         }
-
-
 
         for (Placement placement : placements) {
 
@@ -227,32 +200,20 @@ public final class CraftExecutor {
 
             int before = remainingItems.get(source);
 
-
             ClickQueue.leftClick(source);
 
-
             for (int i = 0; i < amount; i++) {
-
                 ClickQueue.rightClick(destination);
             }
-
 
             if (before > amount) {
                 ClickQueue.leftClick(source);
             }
 
-
-            remainingItems.put(
-                    source,
-                    before - amount
-            );
+            remainingItems.put(source, before - amount);
         }
 
-
-
-        ClickQueue.quickMove(
-                SlotMapper.RESULT_SLOT
-        );
+        ClickQueue.quickMove(SlotMapper.RESULT_SLOT);
 
         CraftingReimaginedClient.LOGGER.info(
                 "Queued {} crafting operations using {} grid slots.",
@@ -263,15 +224,11 @@ public final class CraftExecutor {
         return true;
     }
 
-
     public static boolean isBusy() {
-
         return ClickQueue.isBusy();
     }
 
-
     public static int getRemainingClicks() {
-
         return ClickQueue.size();
     }
 
@@ -284,17 +241,10 @@ public final class CraftExecutor {
         );
     }
 
-    /**
-     * Returns the last error message.
-     */
     public static String getLastError() {
-
         return lastError;
     }
 
-    /**
-     * Logs an error and returns false.
-     */
     private static boolean fail(String message) {
 
         lastError = message;
