@@ -44,20 +44,13 @@ public final class SearchField extends EditBox {
         setResponder(this::onSearchChanged);
     }
 
-    /**
-     * * Called whenever the search text changes.
-     *
-     */
+
     private void onSearchChanged(String query) {
 
         searchListener.accept(query);
     }
 
-    /**
-     * * Sets the callback used when the player
-     * * types something into the search field.
-     *
-     */
+
     public void setSearchListener(
             Consumer<String> listener) {
 
@@ -66,55 +59,37 @@ public final class SearchField extends EditBox {
         };
     }
 
-    /**
-     * * Returns the current search query.
-     *
-     */
+
     public String getQuery() {
 
         return getValue();
     }
 
-    /**
-     * * Sets the search query programmatically.
-     *
-     */
+
     public void setQuery(String query) {
 
         setValue(query == null ? "" : query);
     }
 
-    /**
-     * * Clears the search field.
-     *
-     */
+
     public void clearSearch() {
 
         setValue("");
     }
 
-    /**
-     * * Checks whether the search field is empty.
-     *
-     */
+
     public boolean isSearchEmpty() {
 
         return getValue().isBlank();
     }
 
-    /**
-     * * Returns matching recipes using RecipeIndex.
-     *
-     */
+
     public List<RecipeEntry> getMatchingRecipes() {
 
         return RecipeIndex.search(getValue());
     }
 
-    /**
-     * * Returns the number of matching recipes.
-     *
-     */
+
     public int getMatchCount() {
 
         return getMatchingRecipes().size();
