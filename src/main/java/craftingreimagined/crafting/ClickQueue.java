@@ -14,21 +14,14 @@ import java.util.Queue;
 
 public final class ClickQueue {
 
-    /*
-     * All waiting inventory clicks.
-     */
+
     private static final Queue<QueuedClick> QUEUE =
             new ArrayDeque<>();
 
-    /*
-     * Time the previous click was executed.
-     */
+
     private static long lastClickTime = 0L;
 
-    /*
-     * Prevents initialize() from registering
-     * the tick event more than once.
-     */
+
     private static boolean initialized = false;
 
     private ClickQueue() {
@@ -104,9 +97,7 @@ public final class ClickQueue {
         AbstractContainerMenu menu =
                 client.player.containerMenu;
 
-        /*
-         * Do not allow invalid slots.
-         */
+
         if (slot < 0 || slot >= menu.slots.size()) {
 
             CraftingReimaginedClient.LOGGER.warn(
@@ -137,10 +128,7 @@ public final class ClickQueue {
             return;
         }
 
-        /*
-         * If the player/world disappears,
-         * stop automation immediately.
-         */
+
         if (client.player == null
                 || client.level == null
                 || client.gameMode == null) {
@@ -157,11 +145,7 @@ public final class ClickQueue {
         }
 
         /*
-         * Very important safety check:
-         *
-         * If the player closed the crafting table,
-         * opened a chest, etc. while actions were queued,
-         * NEVER send those old clicks to the new menu.
+         * safety patikra:
          */
         if (client.player.containerMenu != click.menu()) {
 
