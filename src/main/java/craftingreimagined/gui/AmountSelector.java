@@ -29,8 +29,7 @@ public final class AmountSelector {
 
     private boolean changingText = false;
 
-    private IntConsumer amountChanged = amount -> {
-    };
+    private IntConsumer amountChanged = amount -> {};
 
     public AmountSelector(
             int x,
@@ -180,8 +179,7 @@ public final class AmountSelector {
             IntConsumer listener
     ) {
         amountChanged = listener == null
-                ? amount -> {
-        }
+                ? amount -> {}
                 : listener;
     }
 
@@ -193,19 +191,22 @@ public final class AmountSelector {
         if (recipe == null || scrollY == 0) {
             return false;
         }
-        if (mouseX < x || mouseY >= x + width
-        || mouseY < y || mouseY >= y + 20) {
+
+        if (mouseX < x || mouseX >= x + width
+                || mouseY < y || mouseY >= y + 20) {
             return false;
         }
+
         if (scrollY > 0) {
             increase();
         } else {
             decrease();
         }
+
         return true;
     }
 
-    public void registerWedgets(
+    public void registerWidgets(
             Consumer<AbstractWidget> register
     ) {
         register.accept(decreaseButton);
@@ -238,8 +239,23 @@ public final class AmountSelector {
 
             updateButtonStates();
             notifyAmountChanged();
+
         } catch (NumberFormatException ignored) {
         }
+    }
+
+    private void updateControls() {
+        changingText = true;
+
+        amountField.setValue(
+                recipe == null
+                        ? "0"
+                        : String.valueOf(desiredOutput)
+        );
+
+        changingText = false;
+
+        updateButtonStates();
     }
 
     private void updateButtonStates() {
