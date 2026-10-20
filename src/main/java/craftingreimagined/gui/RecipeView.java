@@ -1,5 +1,6 @@
 package craftingreimagined.gui;
 
+import craftingreimagined.crafting.MaterialAvailability;
 import craftingreimagined.recipe.RecipeEntry;
 
 import net.minecraft.client.Minecraft;
@@ -21,8 +22,12 @@ public final class RecipeView extends AbstractWidget {
     private static final int BORDER = 0xFF777777;
     private static final int SLOT_BACKGROUND = 0xFF404040;
     private static final int SLOT_BORDER = 0xFF888888;
+    private static final int MISSING_BACKGROUND = 0xFF973535;
+    private static final int MISSING_BORDER = 0xFFFF5555;
     private static final int TEXT = 0xFFFFFFFF;
     private static final int MUTED_TEXT = 0xFFAAAAAA;
+    private static final int RED_TEXT = 0xFFFF7777;
+    private static final int GREEN_TEXT = 0xFF77DD77;
 
     private static final int SLOT_SIZE = 22;
 
@@ -42,11 +47,9 @@ public final class RecipeView extends AbstractWidget {
     public void setRecipe(RecipeEntry recipe) {
         this.recipe = recipe;
 
-        if (recipe == null) {
-            desiredOutput = 1;
-        } else {
-            desiredOutput = recipe.getResultCount();
-        }
+        desiredOutput = recipe == null
+                ? 1
+                : recipe.getResultCount();
     }
 
     public RecipeEntry getRecipe() {
@@ -70,29 +73,33 @@ public final class RecipeView extends AbstractWidget {
     ) {
         int x = getX();
         int y = getY();
-        int width = getWidth();
-        int height = getHeight();
 
         Font font = Minecraft.getInstance().font;
 
         graphics.fill(
-                x, y,
-                x + width, y + height,
+                x,
+                y,
+                x + getWidth(),
+                y + getHeight(),
                 BACKGROUND
         );
 
         graphics.outline(
-                x, y,
-                width, height,
+                x,
+                y,
+                getWidth(),
+                getHeight(),
                 BORDER
         );
 
         graphics.enableScissor(
                 x + 1,
                 y + 1,
-                x + width - 1,
-                y + height - 1
+                x + getWidth() - 1,
+                y + getHeight() - 1
         );
+
+        setTooltip(null);
 
         if (recipe == null) {
             graphics.text(
@@ -114,9 +121,34 @@ public final class RecipeView extends AbstractWidget {
             );
 
             graphics.disableScissor();
-            setTooltip(null);
             return;
         }
+
+        Minecraft client = Minecraft.getInstance();
+
+        ContextMap context = client.level == null
+                ? null
+                : SlotDisplayContext.fromLevel(client.level);
+
+        int crafts = recipe.getCraftsForOutput(
+                desiredOutput
+        );
+
+        int actualOutput = recipe.getOutputCount(
+                crafts
+        );
+
+        int[] missing = context == null
+                ? new int[9]
+                : MaterialAvailability.getMissingPerSlot(
+                recipe,
+                desiredOutput,
+                context
+        );
+
+        int totalMissing = MaterialAvailability.getTotalMissing(
+                missing
+        );
 
         ItemStack result = recipe.getResult();
 
@@ -141,13 +173,8 @@ public final class RecipeView extends AbstractWidget {
         int gridX = x + 12;
         int gridY = y + 47;
 
-        Minecraft client = Minecraft.getInstance();
-
-        ContextMap context = client.level == null
-                ? null
-                : SlotDisplayContext.fromLevel(client.level);
-
         ItemStack hoveredStack = ItemStack.EMPTY;
+        int hoveredMissing = 0;
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 3; column++) {
@@ -157,12 +184,16 @@ public final class RecipeView extends AbstractWidget {
                 int slotX = gridX + column * SLOT_SIZE;
                 int slotY = gridY + row * SLOT_SIZE;
 
+                boolean hasMissing = missing[slot] > 0;
+
                 graphics.fill(
                         slotX,
                         slotY,
                         slotX + SLOT_SIZE - 1,
                         slotY + SLOT_SIZE - 1,
-                        SLOT_BACKGROUND
+                        hasMissing
+                                ? MISSING_BACKGROUND
+                                : SLOT_BACKGROUND
                 );
 
                 graphics.outline(
@@ -170,15 +201,21 @@ public final class RecipeView extends AbstractWidget {
                         slotY,
                         SLOT_SIZE - 1,
                         SLOT_SIZE - 1,
-                        SLOT_BORDER
+                        hasMissing
+                                ? MISSING_BORDER
+                                : SLOT_BORDER
                 );
 
-                if (context == null || recipe.isGridSlotEmpty(slot)) {
+                if (context == null
+                        || recipe.isGridSlotEmpty(slot)) {
                     continue;
                 }
 
                 List<ItemStack> options =
-                        recipe.getIngredientOptions(slot, context);
+                        recipe.getIngredientOptions(
+                                slot,
+                                context
+                        );
 
                 if (options.isEmpty()) {
                     continue;
@@ -192,12 +229,15 @@ public final class RecipeView extends AbstractWidget {
                         slotY + 3
                 );
 
-                if (mouseX >= slotX
-                        && mouseX < slotX + SLOT_SIZE
-                        && mouseY >= slotY
-                        && mouseY < slotY + SLOT_SIZE) {
+                boolean hovered =
+                        mouseX >= slotX
+                                && mouseX < slotX + SLOT_SIZE
+                                && mouseY >= slotY
+                                && mouseY < slotY + SLOT_SIZE;
 
+                if (hovered) {
                     hoveredStack = ingredient;
+                    hoveredMissing = missing[slot];
                 }
             }
         }
@@ -227,7 +267,7 @@ public final class RecipeView extends AbstractWidget {
                 outputY,
                 SLOT_SIZE,
                 SLOT_SIZE,
-                SLOT_BORDER
+                BORDER
         );
 
         graphics.item(
@@ -249,23 +289,16 @@ public final class RecipeView extends AbstractWidget {
                 && mouseY < outputY + SLOT_SIZE) {
 
             hoveredStack = result;
+            hoveredMissing = 0;
         }
 
-        int informationY = gridY + 84;
-
-        int crafts = recipe.getCraftsForOutput(
-                desiredOutput
-        );
-
-        int actualOutput = recipe.getOutputCount(
-                crafts
-        );
+        int infoY = gridY + 84;
 
         graphics.text(
                 font,
                 "Crafting Plan",
                 x + 12,
-                informationY,
+                infoY,
                 TEXT,
                 true
         );
@@ -274,7 +307,7 @@ public final class RecipeView extends AbstractWidget {
                 font,
                 "Output: " + actualOutput,
                 x + 12,
-                informationY + 17,
+                infoY + 17,
                 TEXT,
                 false
         );
@@ -283,37 +316,50 @@ public final class RecipeView extends AbstractWidget {
                 font,
                 "Crafts needed: " + crafts,
                 x + 12,
-                informationY + 31,
+                infoY + 31,
                 MUTED_TEXT,
                 false
         );
 
         graphics.text(
                 font,
-                "Ingredients per craft: "
-                        + recipe.getIngredientSlotCount(),
-                x + 12,
-                informationY + 45,
-                MUTED_TEXT,
-                false
-        );
-
-        graphics.text(
-                font,
-                "Total ingredient slots: "
+                "Ingredients required: "
                         + recipe.getIngredientCountForCrafts(crafts),
                 x + 12,
-                informationY + 59,
+                infoY + 45,
                 MUTED_TEXT,
                 false
         );
+
+        if (context != null && recipe.isCraftingRecipe()) {
+
+            if (totalMissing > 0) {
+                graphics.text(
+                        font,
+                        "Missing materials: " + totalMissing,
+                        x + 12,
+                        infoY + 62,
+                        RED_TEXT,
+                        true
+                );
+            } else {
+                graphics.text(
+                        font,
+                        "All materials available",
+                        x + 12,
+                        infoY + 62,
+                        GREEN_TEXT,
+                        true
+                );
+            }
+        }
 
         if (recipe.isCookingRecipe()) {
             graphics.text(
                     font,
                     "Cooking time: " + recipe.getCookingTime(),
                     x + 12,
-                    informationY + 77,
+                    infoY + 62,
                     MUTED_TEXT,
                     false
             );
@@ -321,11 +367,20 @@ public final class RecipeView extends AbstractWidget {
 
         graphics.disableScissor();
 
-        if (hoveredStack.isEmpty()) {
-            setTooltip(null);
-        } else {
+        if (!hoveredStack.isEmpty()) {
+
+            String tooltipText = hoveredStack
+                    .getHoverName()
+                    .getString();
+
+            if (hoveredMissing > 0) {
+                tooltipText += " | Missing: " + hoveredMissing;
+            }
+
             setTooltip(
-                    Tooltip.create(hoveredStack.getHoverName())
+                    Tooltip.create(
+                            Component.literal(tooltipText)
+                    )
             );
         }
     }
@@ -337,3 +392,4 @@ public final class RecipeView extends AbstractWidget {
         defaultButtonNarrationText(output);
     }
 }
+
