@@ -15,21 +15,13 @@ import java.util.function.Consumer;
 
 public final class CraftingSidebar {
 
-    private static final int PADDING = 4;
-    private static final int BUTTON_HEIGHT = 20;
-
     private final SearchField searchField;
     private final RecipeGrid recipeGrid;
-
-    private final Button decreaseButton;
-    private final Button increaseButton;
-    private final Button amountButton;
-    private final Button maxButton;
+    private final RecipeView recipeView;
+    private final AmountSelector amountSelector;
     private final Button craftButton;
 
     private RecipeEntry selectedRecipe;
-
-    private int desiredOutput = 1;
 
     private String status = "Select a recipe.";
 
@@ -42,103 +34,67 @@ public final class CraftingSidebar {
             int height
     ) {
 
-        if (width < 160 || height < 120) {
-            throw new IllegalArgumentException(
-                    "Crafting sidebar must be at least 160x120."
-            );
-        }
+        int leftWidth = Math.min(
+                205,
+                Math.max(145, width * 2 / 5)
+        );
 
-        Minecraft client = Minecraft.getInstance();
+        int rightX = x + leftWidth + 8;
+        int rightWidth = width - leftWidth - 8;
 
-        int contentWidth = width - PADDING * 2;
-
-        // paieskos laukas
         searchField = new SearchField(
-                client.font,
-                x + PADDING,
-                y + PADDING,
-                contentWidth,
+                Minecraft.getInstance().font,
+                x + 4,
+                y + 4,
+                leftWidth - 8,
                 20
         );
 
-        // Recipe grid
         recipeGrid = new RecipeGrid(
-                x + PADDING,
-                y + 28,
-                contentWidth,
-                height - 82
+                x + 4,
+                y + 29,
+                leftWidth - 8,
+                Math.max(55, height - 99)
         );
 
+        amountSelector = new AmountSelector(
+                x + 4,
+                y + height - 66,
+                leftWidth - 8
+        );
 
-        int controlsY = y + height - 50;
-
-        decreaseButton = Button.builder(
-                Component.literal("-"),
-                button -> decreaseAmount()
-        ).bounds(
-                x + PADDING,
-                controlsY,
-                22,
-                BUTTON_HEIGHT
-        ).build();
-
-        amountButton = Button.builder(
-                Component.literal("1"),
-                button -> resetAmount()
-        ).bounds(
-                x + 28,
-                controlsY,
-                54,
-                BUTTON_HEIGHT
-        ).build();
-
-        increaseButton = Button.builder(
-                Component.literal("+"),
-                button -> increaseAmount()
-        ).bounds(
-                x + 86,
-                controlsY,
-                22,
-                BUTTON_HEIGHT
-        ).build();
-
-        maxButton = Button.builder(
-                Component.literal("MAX"),
-                button -> setMaximumAmount()
-        ).bounds(
-                x + 112,
-                controlsY,
-                width - 116,
-                BUTTON_HEIGHT
-        ).build();
-
-        // Craft Mygtukas
         craftButton = Button.builder(
                 Component.literal("Craft"),
                 button -> craftSelectedRecipe()
         ).bounds(
-                x + PADDING,
-                y + height - 26,
-                contentWidth,
-                BUTTON_HEIGHT
+                x + 4,
+                y + height - 40,
+                leftWidth - 8,
+                20
         ).build();
 
+        recipeView = new RecipeView(
+                rightX,
+                y + 4,
+                rightWidth,
+                height - 8
+        );
 
         searchField.setSearchListener(
                 this::search
         );
 
-
         recipeGrid.setSelectionListener(
                 this::onRecipeSelected
         );
 
-        // Receptus uzkrauna
-        reloadRecipes();
+        amountSelector.setAmountChangedListener(
+                this::onAmountChanged
+        );
 
+        reloadRecipes();
         updateControls();
     }
-
 
     public void registerWidgets(
             Consumer<AbstractWidget> register
@@ -147,10 +103,9 @@ public final class CraftingSidebar {
         register.accept(searchField);
         register.accept(recipeGrid);
 
-        register.accept(decreaseButton);
-        register.accept(amountButton);
-        register.accept(increaseButton);
-        register.accept(maxButton);
+        amountSelector.registerWidgets(register);
+
+        register.accept(recipeView);
         register.accept(craftButton);
     }
 
@@ -161,7 +116,6 @@ public final class CraftingSidebar {
         search(searchField.getQuery());
     }
 
-
     public void search(String query) {
 
         recipeGrid.setRecipes(
@@ -169,13 +123,14 @@ public final class CraftingSidebar {
         );
 
         selectedRecipe = null;
-        desiredOutput = 1;
+
+        recipeView.setRecipe(null);
+        amountSelector.setRecipe(null);
 
         status = "Select a recipe.";
 
         updateControls();
     }
-
 
     private void onRecipeSelected(
             RecipeEntry recipe
@@ -183,13 +138,19 @@ public final class CraftingSidebar {
 
         selectedRecipe = recipe;
 
+        recipeView.setRecipe(recipe);
+        amountSelector.setRecipe(recipe);
+
         if (recipe == null) {
-            desiredOutput = 1;
+
             status = "Select a recipe.";
+
         } else {
-            desiredOutput = recipe.getResultCount();
+
             status = "Selected: "
-                    + recipe.getResult().getHoverName().getString();
+                    + recipe.getResult()
+                    .getHoverName()
+                    .getString();
         }
 
         updateControls();
@@ -197,22 +158,30 @@ public final class CraftingSidebar {
         selectionListener.accept(recipe);
     }
 
+    private void onAmountChanged(
+            int amount
+    ) {
+
+        recipeView.setDesiredOutput(
+                Math.max(1, amount)
+        );
+
+        updateControls();
+    }
 
     public void setSelectionListener(
             Consumer<RecipeEntry> listener
     ) {
 
-        selectionListener = listener != null
-                ? listener
-                : recipe -> {};
+        selectionListener = listener == null
+                ? recipe -> {}
+                : listener;
     }
-
 
     public RecipeEntry getSelectedRecipe() {
 
         return selectedRecipe;
     }
-
 
     public void selectRecipe(
             RecipeEntry recipe
@@ -230,86 +199,37 @@ public final class CraftingSidebar {
         recipeGrid.setSelectedRecipe(recipe);
     }
 
-
     public int getDesiredOutput() {
 
-        return desiredOutput;
+        return amountSelector.getDesiredOutput();
     }
-
 
     public int getRequiredCrafts() {
 
-        if (selectedRecipe == null) {
-            return 0;
-        }
-
-        return selectedRecipe.getCraftsForOutput(
-                desiredOutput
-        );
+        return amountSelector.getRequiredCrafts();
     }
-
 
     public void setDesiredOutput(
             int amount
     ) {
 
-        if (selectedRecipe == null) {
-            return;
-        }
-
-        int maxOutput = Math.multiplyExact(
-                CraftPlanner.MAX_CRAFTS,
-                selectedRecipe.getResultCount()
-        );
-
-        desiredOutput = Math.max(
-                1,
-                Math.min(amount, maxOutput)
-        );
-
-        updateControls();
+        amountSelector.setDesiredOutput(amount);
     }
-
 
     public void increaseAmount() {
 
-        if (selectedRecipe == null) {
-            return;
-        }
-
-        int step = selectedRecipe.getResultCount();
-
-        setDesiredOutput(
-                desiredOutput + step
-        );
+        amountSelector.increase();
     }
-
 
     public void decreaseAmount() {
 
-        if (selectedRecipe == null) {
-            return;
-        }
-
-        int step = selectedRecipe.getResultCount();
-
-        setDesiredOutput(
-                Math.max(step, desiredOutput - step)
-        );
+        amountSelector.decrease();
     }
-
 
     public void resetAmount() {
 
-        if (selectedRecipe == null) {
-            return;
-        }
-
-        setDesiredOutput(
-                selectedRecipe.getResultCount()
-        );
+        amountSelector.reset();
     }
-
 
     public void setMaximumAmount() {
 
@@ -317,34 +237,42 @@ public final class CraftingSidebar {
             return;
         }
 
-        int maximumCrafts = CraftPlanner.getMaximumCrafts(
+        int maximum = CraftPlanner.getMaximumCrafts(
                 selectedRecipe
         );
 
-        if (maximumCrafts <= 0) {
+        if (maximum <= 0) {
 
-            status = "No available crafts. Open a crafting table "
-                    + "and check your ingredients.";
+            status = "No available crafts.";
 
             updateControls();
+
             return;
         }
 
-        setDesiredOutput(
-                selectedRecipe.getOutputCount(maximumCrafts)
-        );
+        amountSelector.setMaximum();
 
-        status = "Maximum: " + maximumCrafts + " crafts.";
+        status = "Maximum: " + maximum + " crafts.";
 
         updateControls();
     }
-
 
     public boolean craftSelectedRecipe() {
 
         if (selectedRecipe == null) {
 
             status = "Select a recipe first.";
+
+            updateControls();
+
+            return false;
+        }
+
+        if (!selectedRecipe.isCraftingRecipe()) {
+
+            status = "Automatic crafting is not supported "
+                    + "for this recipe.";
+
             updateControls();
 
             return false;
@@ -352,12 +280,13 @@ public final class CraftingSidebar {
 
         CraftPlanner.Plan plan = CraftPlanner.planForOutput(
                 selectedRecipe,
-                desiredOutput
+                getDesiredOutput()
         );
 
         if (!plan.possible()) {
 
             status = plan.message();
+
             updateControls();
 
             return false;
@@ -373,8 +302,7 @@ public final class CraftingSidebar {
 
         } else {
 
-            status = "Could not queue crafting. "
-                    + "Check the crafting table.";
+            status = "Unable to queue crafting.";
         }
 
         updateControls();
@@ -382,43 +310,23 @@ public final class CraftingSidebar {
         return queued;
     }
 
+    public boolean handleAmountScroll(
+            double mouseX,
+            double mouseY,
+            double scrollY
+    ) {
+
+        return amountSelector.handleScroll(
+                mouseX,
+                mouseY,
+                scrollY
+        );
+    }
 
     public void updateControls() {
 
-        boolean selected = selectedRecipe != null;
-
-        decreaseButton.active = selected
-                && desiredOutput > selectedRecipe.getResultCount();
-
-        increaseButton.active = selected
-                && getRequiredCrafts() < CraftPlanner.MAX_CRAFTS;
-
-        amountButton.active = selected;
-
-        maxButton.active = selected
+        craftButton.active = selectedRecipe != null
                 && selectedRecipe.isCraftingRecipe();
-
-        craftButton.active = selected
-                && selectedRecipe.isCraftingRecipe();
-
-        if (selected) {
-
-            int actualOutput = selectedRecipe.getOutputCount(
-                    getRequiredCrafts()
-            );
-
-            amountButton.setMessage(
-                    Component.literal(
-                            String.valueOf(actualOutput)
-                    )
-            );
-
-        } else {
-
-            amountButton.setMessage(
-                    Component.literal("0")
-            );
-        }
 
         craftButton.setTooltip(
                 Tooltip.create(
@@ -427,40 +335,43 @@ public final class CraftingSidebar {
         );
     }
 
+    public void clearSelection() {
+
+        selectRecipe(null);
+    }
+
     public String getStatus() {
 
         return status;
     }
-
 
     public SearchField getSearchField() {
 
         return searchField;
     }
 
-
     public RecipeGrid getRecipeGrid() {
 
         return recipeGrid;
     }
 
+    public RecipeView getRecipeView() {
+
+        return recipeView;
+    }
+
+    public AmountSelector getAmountSelector() {
+
+        return amountSelector;
+    }
 
     public List<RecipeEntry> getVisibleRecipes() {
 
         return recipeGrid.getRecipes();
     }
 
-
     public int getRecipeCount() {
 
         return recipeGrid.getRecipeCount();
-    }
-
-    /**
-     * isvalo viska.
-     */
-    public void clearSelection() {
-
-        selectRecipe(null);
     }
 }
