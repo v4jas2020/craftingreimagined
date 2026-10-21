@@ -26,4 +26,4 @@
       "fabric-api": "*"
     }
   }
-}
+// { originally I forgot to remove this extra { when I was editing the json to be updated, so now it stays as a relic.
