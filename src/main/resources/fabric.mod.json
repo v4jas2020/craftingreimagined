@@ -1,21 +1,29 @@
 {
-  "schemaVersion": 1,
-  "id": "craftingreimagined",
-  "version": "${version}",
-  "name": "CraftingReimagined",
-  "description": "",
-  "authors": [],
-  "contact": {},
-  "license": "MIT",
-  "icon": "assets/craftingreimagined/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "craftingreimagined.Main"
-    ]
-  },
-  "depends": {
-    "minecraft": "~26.2",
-    "fabric-api": "*"
+    "schemaVersion": 1,
+    "id": "craftingreimagined",
+    "version": "${version}",
+    "name": "Crafting Reimagined",
+    "description": "A lightweight client-side Minecraft mod featuring a JEI-style recipe browser, automatic crafting, custom crafting quantities, MAX crafting, and missing-material indicators.",
+    "authors": [
+      "v4jas2020"
+    ],
+    "contact": {
+      "homepage": "https://modrinth.com/mod/crafting-reimagined",
+      "sources": "https://github.com/v4jas2020/craftingreimagined"
+    },
+    "license": "LicenseRef-CraftingReimagined",
+    "icon": "assets/craftingreimagined/icon.png",
+    "environment": "client",
+    "entrypoints": {
+      "client": [
+        "craftingreimagined.CraftingReimaginedClient"
+      ]
+    },
+    "depends": {
+      "fabricloader": ">=0.19.3",
+      "minecraft": "~26.2",
+      "java": ">=25",
+      "fabric-api": "*"
+    }
   }
 }
