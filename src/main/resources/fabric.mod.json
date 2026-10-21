@@ -3,7 +3,7 @@
     "id": "craftingreimagined",
     "version": "${version}",
     "name": "Crafting Reimagined",
-    "description": "A lightweight client-side Minecraft mod featuring a JEI-style recipe browser, automatic crafting, custom crafting quantities, MAX crafting, and missing-material indicators.",
+    "description": "A lightweight client-side Minecraft mod featuring a JEI-style recipe browser, automatic crafting, custom crafting quantities, MAX crafting, and missing-material indicator/panel.",
     "authors": [
       "v4jas2020"
     ],
