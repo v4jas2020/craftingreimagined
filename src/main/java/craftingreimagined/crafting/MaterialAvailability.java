@@ -175,12 +175,12 @@ public final class MaterialAvailability {
             ArrayDeque<Integer> queue = new ArrayDeque<>();
             queue.addLast(source);
 
-            while (!queue.isEmpty() && parent[sink] == -1 {
+            while (!queue.isEmpty() && parent[sink] == -1) {
                 int current = queue.removeFirst();
 
                 for (int next = 0; next < nodeCount; next++) {
-                    if (parent[next] != 1
-                        || capacity[current][next] <= 0 {
+                    if (parent[next] != -1
+                        || capacity[current][next] <= 0) {
                         continue;
                     }
                     parent[next] = current;
