@@ -1,5 +1,7 @@
 # Crafting Reimagined / Better Crafting
 
+OFFICIAL MODRINTH LINK: https://modrinth.com/mod/craftingreimagined
+
 **Crafting Reimagined** is a client-side Minecraft Fabric mod designed to make crafting faster, and more easier / simpler, you can see it as a crafting tweaks mod.
 
 The goal of this project is to make a JEI style crafting interface, but different than JEI it will not require for the server to have installed it, and is far more simpler to use for everyone, including extra crafting tweaks such as knowing how much materials you need for a certain item amount.
