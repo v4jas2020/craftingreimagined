@@ -53,7 +53,7 @@ public final class  CraftingScreenIntegration {
                     int margin = 4;
                     int availableRight = screenWidth - menuRight - margin * 2;
                     int availableLeft = menuLeft - margin * 2;
-                    boolean useRight = availableRight > availableLeft;
+                    boolean useRight = availableRight > 65;
                     int available = Math.max(availableRight, availableLeft);
                     int width = Math.min(160, available);
                     int height = screenHeight - 8;
