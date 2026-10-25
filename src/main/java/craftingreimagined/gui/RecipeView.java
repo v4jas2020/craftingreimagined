@@ -319,6 +319,7 @@ public final class RecipeView extends AbstractWidget {
     private void renderCookingRecipe(
             GuiGraphicsExtractor graphics,
             Font font,
+            ContextMap context,
             int mouseX,
             int mouseY
     ) {
@@ -326,7 +327,7 @@ public final class RecipeView extends AbstractWidget {
         int y = getY();
         int inputX = x + 20;
         int inputY = y + 29;
-        int fuelX = x + inputX;
+        int fuelX = inputX;
         int fuelY = y + 65;
         int outputX = x + 130;
         int outputY = y + 47;
