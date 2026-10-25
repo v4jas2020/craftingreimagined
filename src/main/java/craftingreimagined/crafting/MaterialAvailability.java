@@ -138,43 +138,18 @@ public final class MaterialAvailability {
         );
         return getTotalMissing(missing) == 0;
     }
+
     private static Map<Item, Integer> scanInventory() {
         Minecraft client = Minecraft.getInstance();
         Map<Item, Integer> available = new HashMap<>();
         if (client.player == null) {
-            var menu = client.player.containerMenu;
-
-            if (menu instanceof net.minecraft.world.inventory.CraftingMenu craftingMenu) {
-                for (int slot = SlotMapper.GRID_START; slot <= SlotMapper.GRID_END; slot++) {
-                    ItemStack stack = craftingMenu.slots.get(slot).getItem();
-
-                    if (!stack.isEmpty()) {
-                        available.merge(
-                        stack.getItem(),
-                        stack.getCount(),
-                        Integer::sum
-                      );
-                    }
-                }
-            } else if (menu instanceof net.minecraft.world.inventory.InventoryMenu inventoryMenu) {
-                for (int slot = 1;slot <= 4; slot++) {
-                    ItemStack stack = inventoryMenu.slots.get(slot).getItem();
-
-                    if (!stack.isEmpty()) {
-                        available.merge(
-                                stack.getItem(),
-                                stack.getCount(),
-                                Integer::sum
-                        );
-                    }
-                }
             return available;
         }
-
-        for (int slot = 0; slot < 36; slot ++) {
+        for (int slot = 0; slot < 36; slot++) {
             ItemStack stack = client.player
                     .getInventory()
                     .getItem(slot);
+
             if (stack.isEmpty()) {
                 continue;
             }
@@ -183,6 +158,30 @@ public final class MaterialAvailability {
                     stack.getCount(),
                     Integer::sum
             );
+        }
+        var menu = client.player.containerMenu;
+        if (menu instanceof net.minecraft.world.inventory.CraftingMenu craftingMenu) {
+            for (int slot = 1; slot <= 9; slot++) {
+                ItemStack stack = craftingMenu.slots.get(slot).getItem();
+                if (!stack.isEmpty()) {
+                    available.merge(
+                            stack.getItem(),
+                            stack.getCount(),
+                            Integer::sum
+                    );
+                }
+            }
+        } else if (menu instanceof net.minecraft.world.inventory.InventoryMenu inventoryMenu) {
+            for (int slot = 1; slot <= 4; slot++) {
+                ItemStack stack = inventoryMenu.slots.get(slot).getItem();
+                if (!stack.isEmpty()) {
+                    available.merge(
+                            stack.getItem(),
+                            stack.getCount(),
+                            Integer::sum
+                    );
+                }
+            }
         }
         return available;
     }
