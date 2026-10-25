@@ -76,10 +76,7 @@ public final class CraftingSidebar {
                 x + 4,
                 y + 29,
                 leftWidth - 8,
-                Math.max(
-                        55,
-                        height - (craftingTableScreen ? 61 : 37)
-                )
+                Math.max(55, height - 37)
         );
 
         amountSelector = new AmountSelector(
@@ -162,10 +159,6 @@ public final class CraftingSidebar {
         register.accept(recipeGrid);
         register.accept(recipeView);
 
-        if (craftingTableScreen) {
-            amountSelector.registerWidgets(register);
-        }
-        recipeView.visible = false;
     }
 
     public void reloadRecipes() {
@@ -212,6 +205,10 @@ public final class CraftingSidebar {
 
         if (recipe != null && recipe.isCraftingRecipe()) {
             craftSelectedRecipe();
+        } else if (recipe != null
+                && recipe.isCookingRecipe()
+                && stationType != null) {
+            CraftExecutor.placeCookingIngredient(recipe);
         }
     }
 

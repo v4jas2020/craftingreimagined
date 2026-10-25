@@ -6,7 +6,12 @@ import craftingreimagined.config.ModConfig;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.AbstractFurnaceMenu;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -266,13 +271,61 @@ public final class CraftExecutor {
             return fail("Empty your cursor first.");
         }
         lastPlacementTime = now;
-        
+
         client.gameMode.handlePlaceRecipe(
                 menu.containerId,
                 recipe.getId(),
                 maximum
         );
         return true;
+    }
+
+    public static boolean placeCookingIngredient(RecipeEntry recipe) {
+        lastError = "";
+        Minecraft client = Minecraft.getInstance();
+
+        if (recipe == null || !recipe.isCookingRecipe()) {
+            return fail("Select a cooking recipe.");
+        }
+        if (client.player == null
+                || client.level == null
+                || client.gameMode == null) {
+            return fail("Player is not ready.");
+        }
+        if (ClickQueue.isBusy()) {
+            return fail("Another inventory operation is running.");
+        }
+        if (!menu.getCarried().isEmpty()) {
+            return fail("Empty your cursor first.");
+        }
+        if (!menu.slots.get(0).getItem().isEmpty()) {
+            return fail("Furnace input slot is occupied.");
+        }
+
+        ContextMap context = SlotDisplayContext.fromLevel(client.level);
+        List<ItemStack> options = recipe.getIngredientOptions(
+                0,
+                context
+        );
+        if (options.isEmpty()) {
+            return fail ("No valid cooking ingriedients found");
+        }
+        for (int slot = 3; slot < menu.slots.size(); slot++) {
+            ItemStack stack = menu.slots.get(slot).getItem();
+
+            if (stack.isEmpty()) {
+                continue;
+            }
+            for (ItemStack option : options) {
+                if (stack.getItem() == option.getItem()
+                && menu.slots.get(0).mayPlace(stack)) {
+                    ClickQueue.quickMove(slot);
+
+                    return true;
+                }
+            }
+        }
+        return fail("Required ingredient not found in inventory.");
     }
     public static boolean isBusy() {
         return ClickQueue.isBusy();
