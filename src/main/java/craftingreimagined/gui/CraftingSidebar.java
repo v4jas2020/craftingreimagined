@@ -226,17 +226,15 @@ public final class CraftingSidebar {
                 } else {
                     status = "Missing crafting materials.";
                 }
-
-                if (recipe !null
-                    && recipe.isCookingRecipe()
-                        && stationType != null {
-                    boolean success = CraftExecutor.placeCookingIngredient(recipe);
-
-                    status = success
-                            ? "Cooking ingriedient transfer requested."
-                            : CraftExecutor.getLastError();
-                }
             }
+        } else if (recipe != null
+            && recipe.isCookingRecipe()
+            && stationType != null) {
+            boolean success =
+                    CraftExecutor.placeCookingIngredient(recipe);
+            status = success
+                    ? "Cooking ingredient transfer requested."
+                    : CraftExecutor.getLastError();
         }
     }
 
