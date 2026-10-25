@@ -215,6 +215,13 @@ public final class AmountSelector {
         register.accept(maxButton);
     }
 
+    public void setVisible(boolean visible) {
+        decreaseButton.visible = visible;
+        increaseButton.visible = visible;
+        maxButton.visible = visible;
+        amountField.visible = visible;
+    }
+
     private void onTextChanged(String text) {
         if (changingText || recipe == null || text.isBlank()) {
             return;

@@ -23,7 +23,9 @@ public final class CraftingSidebar {
     private final RecipeView recipeView;
     private final AmountSelector amountSelector;
     private final Button filterButton;
+    private final Button backButton;
     private final boolean craftingTableScreen;
+    private boolean showingPreview = false;
     private int filterMode = 0;
     private final boolean compact;
 
@@ -62,6 +64,16 @@ public final class CraftingSidebar {
                 20
         ).build();
 
+        backButton = Button.builder(
+                Component.literal("Back"),
+                button -> closePreview()
+        ).bounds(
+                x + 4,
+                y + 4,
+                55,
+                20
+        ).build();
+
         recipeGrid = new RecipeGrid(
                 x + 4,
                 y + 29,
@@ -82,7 +94,7 @@ public final class CraftingSidebar {
               x + 4,
                 y + 4,
                 Math.max(100, width - 8),
-                height - 8
+                height - 33
         );
 
         searchField.setSearchListener(
@@ -135,6 +147,31 @@ public final class CraftingSidebar {
         refreshRecipes();
         updateControls();
     }
+    private void openPreview(RecipeEntry recipe) {
+        if (recipe == null) {
+            return;
+        }
+
+        showingPreview = true;
+        recipeView.setRecipe(recipe);
+
+        updateViewVisibility();
+    }
+    private void closePreview() {
+        showingPreview = false;
+        updateViewVisibility();
+    }
+
+    private void updateViewVisibility() {
+        filterButton.visible = !showingPreview;
+        searchField.visible = !showingPreview;
+        recipeGrid.visible = !showingPreview;
+
+        backButton.visible = showingPreview;
+        recipeView.visible = showingPreview;
+
+        amountSelector.setVisible(!showingPreview && craftingTableScreen);
+    }
 
     public void registerWidgets(
             Consumer<AbstractWidget> register
@@ -142,10 +179,13 @@ public final class CraftingSidebar {
         register.accept(filterButton);
         register.accept(searchField);
         register.accept(recipeGrid);
+        register.accept(recipeView);
+        register.accept(backButton);
 
         if (craftingTableScreen) {
             amountSelector.registerWidgets(register);
         }
+        updateViewVisibility();
     }
 
     public void reloadRecipes() {
@@ -187,6 +227,10 @@ public final class CraftingSidebar {
 
         updateControls();
         selectionListener.accept(recipe);
+
+        if (recipe != null) {
+            openPreview(recipe);
+        }
     }
 
     private void onAmountChanged(
