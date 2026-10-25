@@ -23,7 +23,7 @@ public final class CraftingSidebar {
     private final RecipeGrid recipeGrid;
     private final RecipeView recipeView;
     private final AmountSelector amountSelector;
-    private final Button craftButton;
+    private final Button filterButton;
     private int filterMode = 0;
 
     private RecipeEntry selectedRecipe;
@@ -339,13 +339,14 @@ public final class CraftingSidebar {
     }
 
     public void updateControls() {
-
-        craftButton.active = selectedRecipe != null
-                && selectedRecipe.isCraftingRecipe();
-
-        craftButton.setTooltip(
+        String mode = switch (filterMode) {
+            case 1 -> "Craftable";
+            case 2 -> "Missing";
+            default -> "All";
+        };
+        filterButton.setTooltip(
                 Tooltip.create(
-                        Component.literal(status)
+                        Component.literal("Filter:" + mode)
                 )
         );
     }
