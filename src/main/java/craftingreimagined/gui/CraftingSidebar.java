@@ -24,6 +24,7 @@ public final class CraftingSidebar {
     private final RecipeView recipeView;
     private final AmountSelector amountSelector;
     private final Button filterButton;
+    private final boolean craftingTableScreen;
     private int filterMode = 0;
 
     private RecipeEntry selectedRecipe;
@@ -36,8 +37,10 @@ public final class CraftingSidebar {
             int x,
             int y,
             int width,
-            int height
+            int height,
+            boolean craftingTableScreen
     ) {
+        this.craftingTableScreen = craftingTableScreen;
 
         int leftWidth = Math.min(
                 205,
@@ -68,12 +71,15 @@ public final class CraftingSidebar {
                 x + 4,
                 y + 29,
                 leftWidth - 8,
-                Math.max(55, height - 99)
+                Math.max(
+                        55,
+                        height - (craftingTableScreen ? 61 : 37)
+                )
         );
 
         amountSelector = new AmountSelector(
                 x + 4,
-                y + height - 66,
+                y + height - 28,
                 leftWidth - 8
         );
 
@@ -138,14 +144,14 @@ public final class CraftingSidebar {
     public void registerWidgets(
             Consumer<AbstractWidget> register
     ) {
-
+        register.accept(filterButton);
         register.accept(searchField);
         register.accept(recipeGrid);
-
-        amountSelector.registerWidgets(register);
-
         register.accept(recipeView);
-        register.accept(filterButton);
+
+        if (craftingTableScreen) {
+            amountSelector.registerWidgets(register);
+        }
     }
 
     public void reloadRecipes() {
@@ -329,11 +335,11 @@ public final class CraftingSidebar {
             double mouseY,
             double scrollY
     ) {
-
-        return amountSelector.handleScroll(
-                mouseX,
-                mouseY,
-                scrollY
+        return craftingTableScreen
+                && amountSelector.handleScroll(
+                        mouseX,
+                        mouseY,
+                        scrollY
         );
     }
 
