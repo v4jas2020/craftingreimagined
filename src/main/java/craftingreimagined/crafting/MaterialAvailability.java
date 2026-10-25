@@ -1,4 +1,4 @@
-package craftingreimagined;
+package craftingreimagined.crafting; // I misspelled it so just copied it from another file rahh
 
 import craftingreimagined.recipe.RecipeEntry;
 
@@ -69,7 +69,7 @@ public final class MaterialAvailability {
         int itemCount = availableItems.size();
         int source = 0;
         int itemStart = 1;
-        int gridStart = 1;
+        int gridStart = itemStart + itemCount;
         int sink = gridStart + GRID_SIZE;
 
         int[][] capacity = new int[sink + 1][sink + 1];
@@ -163,12 +163,12 @@ public final class MaterialAvailability {
     }
 
     private static void calculateMaximumFlow(
-            int[][] capactity,
+            int[][] capacity, // My worst bug yet, spelled capactity instead of capacity
             int source,
             int sink
     ) {
-        int nodeCount = capacity.length;
-        int[] parent = new int[NodeCount];
+        int nodeCount = capacity.length;  // i dont even know what this bug is :sob:
+        int[] parent = new int[nodeCount];
         while (true) {
             Arrays.fill(parent, -1);
             parent[source] = source;
@@ -212,8 +212,8 @@ public final class MaterialAvailability {
                 node != source;
                 node = parent[node]) {
                         int previous = parent[node];
-                        capactity[previous][node] -= flow;
-                        capactity[node][previous] += flow;
+                        capacity[previous][node] -= flow;
+                        capacity[node][previous] += flow;
             }
         }
     }

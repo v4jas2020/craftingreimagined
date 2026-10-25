@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CraftingScreenIntegration {
+public final class  CraftingScreenIntegration {
 
     private static final int VANILLA_MENU_WIDTH = 176;
     private static final int SIDEBAR_WIDTH = 330;
