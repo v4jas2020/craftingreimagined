@@ -72,7 +72,7 @@ public final class CraftingSidebar {
                 22,
                 20
         ).build();
-        boolean previewInSidebar = previewX >- x
+        boolean previewInSidebar = previewX >= x
                 && previewX < x + width;
         int gridHeight = height - 37;
         if (previewInSidebar) {
@@ -225,6 +225,16 @@ public final class CraftingSidebar {
                     craftSelectedRecipe();
                 } else {
                     status = "Missing crafting materials.";
+                }
+
+                if (recipe !null
+                    && recipe.isCookingRecipe()
+                        && stationType != null {
+                    boolean success = CraftExecutor.placeCookingIngredient(recipe);
+
+                    status = success
+                            ? "Cooking ingriedient transfer requested."
+                            : CraftExecutor.getLastError();
                 }
             }
         }
