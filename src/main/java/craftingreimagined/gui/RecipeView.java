@@ -173,9 +173,9 @@ public final class RecipeView extends AbstractWidget {
             graphics.disableScissor();
             return;
         }
-
-        int gridX = x + 12;
-        int gridY = y + 30;
+        boolean narrow = getWidth() < 176;
+        int gridX = x + (narrow ? 4 : 12);
+        int gridY = y + (narrow ? 19 : 30);
 
         ItemStack hoveredStack = ItemStack.EMPTY;
         int hoveredMissing = 0;
@@ -246,13 +246,13 @@ public final class RecipeView extends AbstractWidget {
             }
         }
 
-        int outputX = gridX + 108;
+        int outputX = gridX + (narrow ? 100 : 108);
         int outputY = gridY + 22;
 
         graphics.text(
                 font,
                 "->",
-                gridX + 79,
+                gridX + (narrow ? 75 : 79),
                 outputY + 5,
                 TEXT,
                 true

@@ -70,16 +70,26 @@ public final class  CraftingScreenIntegration {
                     boolean compact = width < 290;
                     int vanillaMenuHeight = 166;
                     int menuTop = (screenHeight - vanillaMenuHeight) / 2;
-                    int previewX = menuLeft;
-                    int previewY = menuTop + vanillaMenuHeight + 4;
-                    int previewWidth = VANILLA_MENU_WIDTH;
-                    int previewHeight = Math.max(
-                            1,
-                            Math.min(
-                                    118,
-                                    screenHeight - previewY -4
-                            )
-                    );
+                    int spaceBelow = screenHeight
+                            - (menuTop + vanillaMenuHeight + 4)
+                            - 4;
+                    boolean previewInSidebar = spaceBelow < 118;
+
+                    int previewX = previewInSidebar
+                            ? x + 4
+                            : menuLeft;
+                    int previewY = previewInSidebar
+                            ? y + height - 112
+                            : menuTop + vanillaMenuHeight + 4;
+
+                    int previewWidth = previewInSidebar
+                            ? width - 8
+                            : VANILLA_MENU_WIDTH;
+
+                    int previewHeight = previewInSidebar
+                            ? 108
+                            : 118;
+
                     craftingreimagined.recipe.RecipeEntry.RecipeType stationType = null;
                     if (screen instanceof FurnaceScreen) {
                         stationType = RecipeEntry.RecipeType.SMELTING;

@@ -72,11 +72,17 @@ public final class CraftingSidebar {
                 22,
                 20
         ).build();
+        boolean previewInSidebar = previewX >- x
+                && previewX < x + width;
+        int gridHeight = height - 37;
+        if (previewInSidebar) {
+            gridHeight -= 112;
+        }
         recipeGrid = new RecipeGrid(
                 x + 4,
-                y + 29,
+                y +29,
                 leftWidth - 8,
-                Math.max(55, height - 37)
+                Math.max(55, gridHeight)
         );
 
         amountSelector = new AmountSelector(
