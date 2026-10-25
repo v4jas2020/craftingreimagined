@@ -22,6 +22,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 public final class CraftExecutor {
 
     private static String lastError = "";
+    private static long lastPlacementTime = 0;
 
     private CraftExecutor() {
     }
@@ -246,6 +247,10 @@ public final class CraftExecutor {
         if (ClickQueue.isBusy()) {
             return fail("Previous crafting operation still running.");
         }
+        long now = System.nanoTime();
+        if (now - lastPlacementTime < 300_000_000L) {
+            return fail("Place recipe timed out.");
+        }
 
         var menu = client.player.containerMenu;
 
@@ -260,6 +265,8 @@ public final class CraftExecutor {
         if (!menu.getCarried().isEmpty()) {
             return fail("Empty your cursor first.");
         }
+        lastPlacementTime = now;
+        
         client.gameMode.handlePlaceRecipe(
                 menu.containerId,
                 recipe.getId(),

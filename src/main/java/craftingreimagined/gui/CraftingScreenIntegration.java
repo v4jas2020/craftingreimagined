@@ -1,5 +1,6 @@
 package craftingreimagined.gui;
 
+import craftingreimagined.recipe.RecipeEntry;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
@@ -8,6 +9,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.inventory.FurnaceScreen;
+import net.minecraft.client.gui.screens.inventory.BlastFurnaceScreen;
+import net.minecraft.client.gui.screens.inventory.SmokerScreen;
+import net.minecraft.client.gui.screens.inventory.BrewingStandScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +41,31 @@ public final class  CraftingScreenIntegration {
                 (client, screen, screenWidth, screenHeight) -> {
 
                     if (!(screen instanceof CraftingScreen)
-                            && !(screen instanceof InventoryScreen)) {
+                            && !(screen instanceof InventoryScreen)
+                            && !(screen instanceof FurnaceScreen)
+                            && !(screen instanceof BlastFurnaceScreen)
+                            && !(screen instanceof SmokerScreen)) {
                         return;
                     }
 
                     int menuLeft = (screenWidth - VANILLA_MENU_WIDTH) / 2;
                     int menuRight = menuLeft + VANILLA_MENU_WIDTH;
-                    int width = 160;
-                    int height = screenHeight - 16;
-                    int x = screenWidth - width - 8;
-                    int y = 8;
+                    int margin = 4;
+                    int availableRight = screenWidth - menuRight - margin * 2;
+                    int availableLeft = menuLeft - margin * 2;
+                    boolean useRight = availableRight > availableLeft;
+                    int available = Math.max(availableRight, availableLeft);
+                    int width = Math.min(160, available);
+                    int height = screenHeight - 8;
+
+                    if (width < 65 || height < 120) {
+                        return;
+                    }
+
+                    int x = useRight
+                            ? screenWidth - width - margin
+                            : margin;
+                    int y = 4;
 
                     if (x < menuRight + 4 || height < 220) {
                         return;
@@ -63,6 +83,14 @@ public final class  CraftingScreenIntegration {
                                     screenHeight - previewY -4
                             )
                     );
+                    craftingreimagined.recipe.RecipeEntry.RecipeType. stationType = null;
+                    if (screen instanceof FurnaceScreen) {
+                        stationType = RecipeEntry.RecipeType.SMELTING;
+                    } else if (screen instanceof BlastFurnaceScreen) {
+                        stationType = RecipeEntry.RecipeType.BLASTING;
+                    } else if (screen instanceof SmokerScreen) {
+                        stationType = RecipeEntry.RecipeType.SMOKING;
+                    }
                     CraftingSidebar sidebar = new CraftingSidebar(
                             x,
                             y,
@@ -73,7 +101,8 @@ public final class  CraftingScreenIntegration {
                             previewX,
                             previewY,
                             previewWidth,
-                            previewHeight
+                            previewHeight,
+                            stationType
                     );
 
                     List<AbstractWidget> customWidgets =

@@ -23,6 +23,7 @@ public final class CraftingSidebar {
     private final RecipeView recipeView;
     private final AmountSelector amountSelector;
     private final Button filterButton;
+    private final RecipeEntry.RecipeType stationType;
     private final boolean craftingTableScreen;
     private boolean showingPreview = false;
     private int filterMode = 0;
@@ -48,6 +49,7 @@ public final class CraftingSidebar {
             int previewHeight
     ) {
         this.craftingTableScreen = craftingTableScreen;
+        this.stationType = stationType;
         this.compact = compact;
         this.previewFits = previewHeight >= 108;
         int leftWidth = width;
@@ -110,6 +112,11 @@ public final class CraftingSidebar {
         List<RecipeEntry> recipes = RecipeIndex.search(
                 searchField.getQuery()
         );
+        if (stationType != null) {
+            recipes = recipes.stream()
+                    .filter(recipe -> recipe.getType() == stationType)
+                    .toList();
+        }
         Minecraft client = Minecraft.getInstance();
 
         if (filterMode != 0 && client.level != null) {
