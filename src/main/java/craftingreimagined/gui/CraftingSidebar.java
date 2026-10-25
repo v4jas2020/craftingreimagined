@@ -157,18 +157,11 @@ public final class CraftingSidebar {
     }
 
     public void search(String query) {
-
-        recipeGrid.setRecipes(
-                RecipeIndex.search(query)
-        );
-
+        refreshRecipes();
         selectedRecipe = null;
-
         recipeView.setRecipe(null);
         amountSelector.setRecipe(null);
-
         status = "Select a recipe.";
-
         updateControls();
     }
 
