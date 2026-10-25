@@ -7,7 +7,6 @@ import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.awt.*;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +43,7 @@ public final class MaterialAvailability {
             return missing;
         }
 
-        Map<Item, Integer> inventory = ScanInventory();
+        Map<Item, Integer> inventory = scanInventory();
 
         List<Set<Item>> alternatives = new ArrayList<>();
 
@@ -139,10 +138,36 @@ public final class MaterialAvailability {
         );
         return getTotalMissing(missing) == 0;
     }
-    private static Map<Item, Integer> ScanInventory() {
+    private static Map<Item, Integer> scanInventory() {
         Minecraft client = Minecraft.getInstance();
         Map<Item, Integer> available = new HashMap<>();
         if (client.player == null) {
+            var menu = client.player.containerMenu;
+
+            if (menu instanceof net.minecraft.world.inventory.CraftingMenu craftingMenu) {
+                for (int slot = SlotMapper.GRID_START; slot <= SlotMapper.GRID_END; slot++) {
+                    ItemStack stack = craftingMenu.slots.get(slot).getItem();
+
+                    if (!stack.isEmpty()) {
+                        available.merge(
+                        stack.getItem(),
+                        stack.getCount(),
+                        Integer::sum
+                      );
+                    }
+                }
+            } else if (menu instanceof net.minecraft.world.inventory.InventoryMenu inventoryMenu) {
+                for (int slot = 1;slot <= 4; slot++) {
+                    ItemStack stack = inventoryMenu.slots.get(slot).getItem();
+
+                    if (!stack.isEmpty()) {
+                        available.merge(
+                                stack.getItem(),
+                                stack.getCount(),
+                                Integer::sum
+                        );
+                    }
+                }
             return available;
         }
 

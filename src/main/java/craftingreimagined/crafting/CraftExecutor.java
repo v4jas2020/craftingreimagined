@@ -217,8 +217,6 @@ public final class CraftExecutor {
             remainingItems.put(source, before - amount);
         }
 
-        ClickQueue.quickMove(SlotMapper.RESULT_SLOT);
-
         CraftingReimaginedClient.LOGGER.info(
                 "Queued {} crafting operations using {} grid slots.",
                 amount,
