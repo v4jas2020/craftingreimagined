@@ -92,7 +92,7 @@ public final class CraftingSidebar {
 
         recipeView = new RecipeView(
               x + 4,
-                y + 4,
+                y + 29,
                 Math.max(100, width - 8),
                 height - 33
         );
