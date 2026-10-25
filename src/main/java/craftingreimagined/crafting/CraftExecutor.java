@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// Naujesni importai kol keiciam:
+import craftingreimagined.recipe.RecipeEntry;
+import net.minecraft.world.inventory.InventoryMenu;
+
 public final class CraftExecutor {
 
     private static String lastError = "";
@@ -223,7 +227,45 @@ public final class CraftExecutor {
 
         return true;
     }
+    public static boolean placeRecipe(
+            RecipeEntry recipe,
+            boolean maximum
+    ) {
+        lastError = "";
+        Minecraft client = Minecraft.getInstance();
 
+        if (!ModConfig.isEnabled()) {
+            return fail("Crafting Reimagined is disabled.");
+        }
+        if (recipe == null || !recipe.isCraftingRecipe()) {
+            return fail("Select a crafting recipe.");
+        }
+        if (client.player == null
+            || client.gameMode == null
+            || client.getConnection() == null) {
+            return fail("not connected to a world.");
+        }
+        if (ClickQueue.isBusy()) {
+            return fail("Previous crafting operation still running.");
+        }
+
+        var menu = client.player.containerMenu;
+
+        if (!(menu instanceof CraftingMenu)
+            && !(menu instanceof InventoryMenu)) {
+            return fail("Open your inventory or a crafting table.");
+        }
+        if (menu instanceof InventoryMenu
+            && recipe.requiresCraftingTable()) {
+        return fail("Empty your cursor first.");
+            }
+        client.gameMode.handlePlaceRecipe(
+                menu.containerId,
+                recipe.getId(),
+                maximum
+        );
+        return true;
+    }
     public static boolean isBusy() {
         return ClickQueue.isBusy();
     }

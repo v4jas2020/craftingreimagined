@@ -1,6 +1,7 @@
 package craftingreimagined.gui;
 
 import craftingreimagined.crafting.CraftPlanner;
+import craftingreimagined.crafting.CraftExecutor;
 import craftingreimagined.recipe.RecipeEntry;
 import craftingreimagined.recipe.RecipeIndex;
 
@@ -64,7 +65,7 @@ public final class CraftingSidebar {
         );
 
         craftButton = Button.builder(
-                Component.literal("Craft"),
+                Component.literal("Fill Grid"),
                 button -> craftSelectedRecipe()
         ).bounds(
                 x + 4,
@@ -154,7 +155,9 @@ public final class CraftingSidebar {
         }
 
         updateControls();
-
+        if (recipe != null && recipe.isCraftingRecipe()) {
+            craftSelectedRecipe();
+        }
         selectionListener.accept(recipe);
     }
 
@@ -260,56 +263,36 @@ public final class CraftingSidebar {
     public boolean craftSelectedRecipe() {
 
         if (selectedRecipe == null) {
-
             status = "Select a recipe first.";
-
             updateControls();
-
             return false;
         }
-
-        if (!selectedRecipe.isCraftingRecipe()) {
-
-            status = "Automatic crafting is not supported "
-                    + "for this recipe.";
-
-            updateControls();
-
-            return false;
-        }
-
-        CraftPlanner.Plan plan = CraftPlanner.planForOutput(
+        boolean success = CraftExecutor.placeRecipe(
                 selectedRecipe,
-                getDesiredOutput()
+                false
         );
-
-        if (!plan.possible()) {
-
-            status = plan.message();
-
-            updateControls();
-
+        status = success
+                ? "Recipe placement requested."
+                : CraftExecutor.getLastError();
+        updateControls();
+        return success;
+    }
+    public boolean fillMaximum() {
+        if (selectedRecipe == null) {
             return false;
         }
 
-        boolean queued = CraftPlanner.execute(plan);
-
-        if (queued) {
-
-            status = "Queued "
-                    + plan.requestedCrafts()
-                    + " crafting operations.";
-
-        } else {
-
-            status = "Unable to queue crafting.";
-        }
-
+        boolean success = CraftExecutor.placeRecipe(
+                selectedRecipe,
+                true
+        );
+        status = success
+               ? "Maximum placement requested."
+                : CraftExecutor.getLastError();
         updateControls();
 
-        return queued;
+        return success;
     }
-
     public boolean handleAmountScroll(
             double mouseX,
             double mouseY,
