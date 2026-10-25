@@ -186,9 +186,6 @@ public final class CraftingSidebar {
         }
 
         updateControls();
-        if (recipe != null && recipe.isCraftingRecipe()) {
-            craftSelectedRecipe();
-        }
         selectionListener.accept(recipe);
     }
 
