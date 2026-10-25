@@ -16,7 +16,7 @@ public final class  CraftingScreenIntegration {
 
     private static final int VANILLA_MENU_WIDTH = 176;
     private static final int SIDEBAR_WIDTH = 330;
-    private static final int MIN_SIDEBAR_WIDTH = 300;
+    private static final int MIN_SIDEBAR_WIDTH = 210;
     private static final int SIDEBAR_HEIGHT = 310;
 
     private static boolean initialized = false;
@@ -73,11 +73,14 @@ public final class  CraftingScreenIntegration {
 
                     int y = (screenHeight - height) / 2;
 
+                    boolean compact = width < 290;
                     CraftingSidebar sidebar = new CraftingSidebar(
                             x,
                             y,
                             width,
-                            height
+                            height,
+                            screen instanceof CraftingScreen,
+                            compact
                     );
 
                     List<AbstractWidget> customWidgets =

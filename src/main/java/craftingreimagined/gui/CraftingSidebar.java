@@ -26,6 +26,7 @@ public final class CraftingSidebar {
     private final Button filterButton;
     private final boolean craftingTableScreen;
     private int filterMode = 0;
+    private final boolean compact;
 
     private RecipeEntry selectedRecipe;
 
@@ -38,17 +39,21 @@ public final class CraftingSidebar {
             int y,
             int width,
             int height,
-            boolean craftingTableScreen
+            boolean craftingTableScreen,
+            boolean compact
     ) {
         this.craftingTableScreen = craftingTableScreen;
-
-        int leftWidth = Math.min(
-                205,
-                Math.max(145, width * 2 / 5)
+        this.compact = compact;
+        int leftWidth = compact
+                ? width
+                : Math.min(
+                        205,
+                        Math.max(145, width * 2 / 5)
         );
-
         int rightX = x + leftWidth + 8;
-        int rightWidth = width - leftWidth - 8;
+        int rightWidth = compact
+                ? 0
+                : width - leftWidth - 8;
 
         searchField = new SearchField(
                 Minecraft.getInstance().font,
@@ -84,9 +89,9 @@ public final class CraftingSidebar {
         );
 
         recipeView = new RecipeView(
-                rightX,
+              compact ? x + 4 : rightX,
                 y + 4,
-                rightWidth,
+                compact ? Math.max(100, width - 8) : rightWidth,
                 height - 8
         );
 
