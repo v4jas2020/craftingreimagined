@@ -74,13 +74,29 @@ public final class  CraftingScreenIntegration {
                     int y = (screenHeight - height) / 2;
 
                     boolean compact = width < 290;
+                    int vanillaMenuHeight = 166;
+                    int menuTop = (screenHeight - vanillaMenuHeight) / 2;
+                    int previewX = menuLeft;
+                    int previewY = menuTop + vanillaMenuHeight + 4;
+                    int previewWidth = VANILLA_MENU_WIDTH;
+                    int previewHeight = Math.max(
+                            1,
+                            Math.min(
+                                    200,
+                                    screenHeight - previewY -4
+                            )
+                    );
                     CraftingSidebar sidebar = new CraftingSidebar(
                             x,
                             y,
                             width,
                             height,
                             screen instanceof CraftingScreen,
-                            compact
+                            compact,
+                            previewX,
+                            previewY,
+                            previewWidth,
+                            previewHeight
                     );
 
                     List<AbstractWidget> customWidgets =
