@@ -49,11 +49,20 @@ public final class CraftingSidebar {
 
         searchField = new SearchField(
                 Minecraft.getInstance().font,
-                x + 4,
+                x + 30,
                 y + 4,
-                leftWidth - 8,
+                leftWidth - 34,
                 20
         );
+        filterButton = Button.builder(
+                Component.literal("F"),
+                button -> cycleFilter()
+        ).bounds(
+                x + 4,
+                y + 4,
+                22,
+                20
+        ).build();
 
         recipeGrid = new RecipeGrid(
                 x + 4,
@@ -67,16 +76,6 @@ public final class CraftingSidebar {
                 y + height - 66,
                 leftWidth - 8
         );
-
-        craftButton = Button.builder(
-                Component.literal("Fill Grid"),
-                button -> craftSelectedRecipe()
-        ).bounds(
-                x + 4,
-                y + height - 40,
-                leftWidth - 8,
-                20
-        ).build();
 
         recipeView = new RecipeView(
                 rightX,
@@ -146,7 +145,7 @@ public final class CraftingSidebar {
         amountSelector.registerWidgets(register);
 
         register.accept(recipeView);
-        register.accept(craftButton);
+        register.accept(filterButton);
     }
 
     public void reloadRecipes() {
