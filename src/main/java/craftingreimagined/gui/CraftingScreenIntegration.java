@@ -83,7 +83,7 @@ public final class  CraftingScreenIntegration {
                                     screenHeight - previewY -4
                             )
                     );
-                    craftingreimagined.recipe.RecipeEntry.RecipeType. stationType = null;
+                    craftingreimagined.recipe.RecipeEntry.RecipeType stationType = null;
                     if (screen instanceof FurnaceScreen) {
                         stationType = RecipeEntry.RecipeType.SMELTING;
                     } else if (screen instanceof BlastFurnaceScreen) {
