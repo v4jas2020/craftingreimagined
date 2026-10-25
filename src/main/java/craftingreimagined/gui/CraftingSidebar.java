@@ -2,14 +2,17 @@ package craftingreimagined.gui;
 
 import craftingreimagined.crafting.CraftPlanner;
 import craftingreimagined.crafting.CraftExecutor;
+import craftingreimagined.crafting.MaterialAvailability;
 import craftingreimagined.recipe.RecipeEntry;
 import craftingreimagined.recipe.RecipeIndex;
 
+import net.fabricmc.loader.impl.lib.sat4j.pb.constraints.MinCardConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,6 +24,7 @@ public final class CraftingSidebar {
     private final RecipeView recipeView;
     private final AmountSelector amountSelector;
     private final Button craftButton;
+    private int filterMode = 0;
 
     private RecipeEntry selectedRecipe;
 
@@ -94,6 +98,41 @@ public final class CraftingSidebar {
         );
 
         reloadRecipes();
+        updateControls();
+    }
+    private void refreshRecipes() {
+        List<RecipeEntry> recipes = RecipeIndex.search(
+                searchField.getQuery()
+        );
+        Minecraft client = Minecraft.getInstance();
+
+        if (filterMode != 0 && client.level != null) {
+            var context = SlotDisplayContext.fromLevel(
+                    client.level
+            );
+            recipes = recipes.stream()
+                    .filter(recipe -> {
+                        if (!recipe.isCraftingRecipe()) {
+                            return false;
+                        }
+                        boolean craftable =
+                                MaterialAvailability.hasAllMaterials(
+                                        recipe,
+                                        recipe.getResultCount(),
+                                        context
+                                );
+                        return filterMode == 1
+                                ? craftable
+                                : !craftable;
+                    })
+                    .toList();
+        }
+        recipeGrid.setRecipes(recipes);
+    }
+    private void cycleFilter() {
+        filterMode = (filterMode + 1) % 3;
+
+        refreshRecipes();
         updateControls();
     }
 
