@@ -292,6 +292,9 @@ public final class CraftExecutor {
                 || client.gameMode == null) {
             return fail("Player is not ready.");
         }
+        if (!(client.player.containerMenu instanceof AbstractFurnaceMenu menu)) {
+            return fail("Open a furnace, smoker, or blast furnace.");
+        }
         if (ClickQueue.isBusy()) {
             return fail("Another inventory operation is running.");
         }
