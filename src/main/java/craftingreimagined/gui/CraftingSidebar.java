@@ -204,11 +204,23 @@ public final class CraftingSidebar {
         openPreview(recipe);
 
         if (recipe != null && recipe.isCraftingRecipe()) {
-            craftSelectedRecipe();
-        } else if (recipe != null
-                && recipe.isCookingRecipe()
-                && stationType != null) {
-            CraftExecutor.placeCookingIngredient(recipe);
+            Minecraft client = Minecraft.getInstance();
+            if (client.level != null) {
+                var context = SlotDisplayContext.fromLevel(
+                        client.level
+                );
+
+                boolean available = MaterialAvailability.hasAllMaterials(
+                        recipe,
+                        recipe.getResultCount(),
+                        context
+                );
+                if (available) {
+                    craftSelectedRecipe();
+                } else {
+                    status = "Missing crafting materials.";
+                }
+            }
         }
     }
 

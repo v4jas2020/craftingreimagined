@@ -254,7 +254,7 @@ public final class CraftExecutor {
         }
         long now = System.nanoTime();
         if (now - lastPlacementTime < 300_000_000L) {
-            return fail("Place recipe timed out.");
+            return fail("Place recipe cooldown on.");
         }
 
         var menu = client.player.containerMenu;
