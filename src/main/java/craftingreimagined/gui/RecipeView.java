@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 
@@ -160,6 +161,18 @@ public final class RecipeView extends AbstractWidget {
                 TEXT,
                 true
         );
+        if (recipe.isCookingRecipe()) {
+            renderCookingRecipe(
+                    graphics,
+                    font,
+                    context,
+                    mouseX,
+                    mouseY
+            );
+
+            graphics.disableScissor();
+            return;
+        }
 
         int gridX = x + 12;
         int gridY = y + 30;
@@ -299,6 +312,147 @@ public final class RecipeView extends AbstractWidget {
                     Tooltip.create(
                             Component.literal(tooltipText)
                     )
+            );
+        }
+    }
+
+    private void renderCookingRecipe(
+            GuiGraphicsExtractor graphics,
+            Font font,
+            int mouseX,
+            int mouseY
+    ) {
+        int x = getX();
+        int y = getY();
+        int inputX = x + 20;
+        int inputY = y + 29;
+        int fuelX = x + inputX;
+        int fuelY = y + 65;
+        int outputX = x + 130;
+        int outputY = y + 47;
+
+        String stationName = switch (recipe.getType()) {
+            case SMELTING -> "Furnace";
+            case BLASTING -> "Blast Furnace";
+            case SMOKING -> "Smoker";
+            case CAMPFIRE -> "Campfire";
+            default -> "Cooking";
+        };
+
+        graphics.text(
+                font,
+                stationName,
+                x + 12,
+                y +2,
+                MUTED_TEXT,
+                false
+        );
+
+        List<ItemStack> inputs = context == null
+                ? List.of()
+                : recipe.getIngredientOptions(0, context);
+        List<ItemStack> fuels = context == null
+                ? List.of()
+                : recipe.getFuelOptions(context);
+
+        ItemStack input = inputs.isEmpty()
+                ? ItemStack.EMPTY
+                : inputs.getFirst();
+        ItemStack fuel = fuels.isEmpty()
+                ? ItemStack.EMPTY
+                : fuels.getFirst();
+        ItemStack output = recipe.getResult();
+
+        graphics.fill(
+                inputX,
+                inputY,
+                inputX + SLOT_SIZE,
+                inputY + SLOT_SIZE,
+                SLOT_BACKGROUND
+        );
+        graphics.outline(
+                inputX,
+                inputY,
+                SLOT_SIZE,
+                SLOT_SIZE,
+                SLOT_BORDER
+        );
+        graphics.fill(
+                outputX,
+                outputY,
+                outputX +SLOT_SIZE,
+                outputY + SLOT_SIZE,
+                SLOT_BACKGROUND
+        );
+        graphics.outline(
+                outputX,
+                outputY,
+                SLOT_SIZE,
+                SLOT_SIZE,
+                SLOT_BORDER
+        );
+        if (!input.isEmpty()) {
+            graphics.item(
+                    input,
+                    inputX + 3,
+                    inputY + 3
+            );
+        }
+        graphics.text(
+                font,
+                "->",
+                x + 96,
+                y + 54,
+                TEXT,
+                false
+        );
+        graphics.text(
+                font,
+                "*",
+                x+ 28,
+                y + 53,
+                0xFFFFAA33,
+                false
+        );
+        graphics.item(
+                output,
+                outputX + 3,
+                outputY + 3
+        );
+        graphics.text(
+                font,
+                "Time: " + recipe.getCookingTime() + " ticks",
+                x + 12,
+                y + 91,
+                MUTED_TEXT,
+                false
+        );
+        if (mouseX >= inputX
+            && mouseX < inputX + SLOT_SIZE
+            && mouseY >= inputY
+            && mouseY < inputY + SLOT_SIZE
+            && !input.isEmpty()) {
+            setTooltip(
+                    Tooltip.create(input.getHoverName())
+            );
+        } else if (mouseX >= fuelX
+                && mouseX < fuelX + SLOT_SIZE
+                && mouseY >= fuelY
+                && mouseY < fuelY + SLOT_SIZE
+                && !fuel.isEmpty()) {
+            setTooltip(
+                    Tooltip.create(
+                            Component.literal(
+                                    "Fuel: " + fuel.getHoverName().getString()
+                            )
+                    )
+            );
+        } else if (mouseX >= outputX
+                && mouseX < outputX + SLOT_SIZE
+                && mouseY >= outputY
+                && mouseY < outputY + SLOT_SIZE) {
+            setTooltip(
+                    Tooltip.create(output.getHoverName())
             );
         }
     }
