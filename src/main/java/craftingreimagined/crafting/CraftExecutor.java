@@ -255,8 +255,11 @@ public final class CraftExecutor {
         }
         if (menu instanceof InventoryMenu
             && recipe.requiresCraftingTable()) {
-        return fail("Empty your cursor first.");
+        return fail("This recipe requires a crafting table.");
             }
+        if (!menu.getCarried().isEmpty()) {
+            return fail("Empty your cursor first.");
+        }
         client.gameMode.handlePlaceRecipe(
                 menu.containerId,
                 recipe.getId(),

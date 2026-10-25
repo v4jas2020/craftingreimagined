@@ -42,37 +42,14 @@ public final class  CraftingScreenIntegration {
 
                     int menuLeft = (screenWidth - VANILLA_MENU_WIDTH) / 2;
                     int menuRight = menuLeft + VANILLA_MENU_WIDTH;
+                    int width = 160;
+                    int height = screenHeight - 16;
+                    int x = screenWidth - width - 8;
+                    int y = 8;
 
-                    int availableRight = screenWidth - menuRight - 8;
-                    int availableLeft = menuLeft - 8;
-
-                    boolean useRightSide =
-                            availableRight >= availableLeft;
-
-                    int availableWidth = useRightSide
-                            ? availableRight
-                            : availableLeft;
-
-                    int width = Math.min(
-                            SIDEBAR_WIDTH,
-                            availableWidth - 4
-                    );
-
-                    int height = Math.min(
-                            SIDEBAR_HEIGHT,
-                            screenHeight - 12
-                    );
-
-                    if (width < MIN_SIDEBAR_WIDTH || height < 220) {
+                    if (x < menuRight + 4 || height < 220) {
                         return;
                     }
-
-                    int x = useRightSide
-                            ? menuRight + 4
-                            : menuLeft - width - 4;
-
-                    int y = (screenHeight - height) / 2;
-
                     boolean compact = width < 290;
                     int vanillaMenuHeight = 166;
                     int menuTop = (screenHeight - vanillaMenuHeight) / 2;
@@ -82,7 +59,7 @@ public final class  CraftingScreenIntegration {
                     int previewHeight = Math.max(
                             1,
                             Math.min(
-                                    200,
+                                    118,
                                     screenHeight - previewY -4
                             )
                     );

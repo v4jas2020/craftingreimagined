@@ -49,7 +49,7 @@ public final class CraftingSidebar {
     ) {
         this.craftingTableScreen = craftingTableScreen;
         this.compact = compact;
-        this.previewFits = previewHeight >= 100;
+        this.previewFits = previewHeight >= 108;
         int leftWidth = width;
 
         searchField = new SearchField(
@@ -200,6 +200,10 @@ public final class CraftingSidebar {
         updateControls();
         selectionListener.accept(recipe);
         openPreview(recipe);
+
+        if (recipe != null && recipe.isCraftingRecipe()) {
+            craftSelectedRecipe();
+        }
     }
 
     private void onAmountChanged(

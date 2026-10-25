@@ -161,17 +161,8 @@ public final class RecipeView extends AbstractWidget {
                 true
         );
 
-        graphics.text(
-                font,
-                recipe.getType().name(),
-                x + 12,
-                y + 27,
-                MUTED_TEXT,
-                false
-        );
-
         int gridX = x + 12;
-        int gridY = y + 47;
+        int gridY = y + 30;
 
         ItemStack hoveredStack = ItemStack.EMPTY;
         int hoveredMissing = 0;
@@ -290,79 +281,6 @@ public final class RecipeView extends AbstractWidget {
 
             hoveredStack = result;
             hoveredMissing = 0;
-        }
-
-        int infoY = gridY + 84;
-
-        graphics.text(
-                font,
-                "Crafting Plan",
-                x + 12,
-                infoY,
-                TEXT,
-                true
-        );
-
-        graphics.text(
-                font,
-                "Output: " + actualOutput,
-                x + 12,
-                infoY + 17,
-                TEXT,
-                false
-        );
-
-        graphics.text(
-                font,
-                "Crafts needed: " + crafts,
-                x + 12,
-                infoY + 31,
-                MUTED_TEXT,
-                false
-        );
-
-        graphics.text(
-                font,
-                "Ingredients required: "
-                        + recipe.getIngredientCountForCrafts(crafts),
-                x + 12,
-                infoY + 45,
-                MUTED_TEXT,
-                false
-        );
-
-        if (context != null && recipe.isCraftingRecipe()) {
-
-            if (totalMissing > 0) {
-                graphics.text(
-                        font,
-                        "Missing materials: " + totalMissing,
-                        x + 12,
-                        infoY + 62,
-                        RED_TEXT,
-                        true
-                );
-            } else {
-                graphics.text(
-                        font,
-                        "All materials available",
-                        x + 12,
-                        infoY + 62,
-                        GREEN_TEXT,
-                        true
-                );
-            }
-        }
-
-        if (recipe.isCookingRecipe()) {
-            graphics.text(
-                    font,
-                    "Cooking time: " + recipe.getCookingTime(),
-                    x + 12,
-                    infoY + 62,
-                    MUTED_TEXT,
-                    false
-            );
         }
 
         graphics.disableScissor();
