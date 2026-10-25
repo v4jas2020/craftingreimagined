@@ -152,7 +152,9 @@ public final class CraftingSidebar {
         register.accept(filterButton);
         register.accept(searchField);
         register.accept(recipeGrid);
-        register.accept(recipeView);
+        if (!compact) {
+            register.accept(recipeView);
+        }
 
         if (craftingTableScreen) {
             amountSelector.registerWidgets(register);
