@@ -67,9 +67,6 @@ public final class  CraftingScreenIntegration {
                             : margin;
                     int y = 4;
 
-                    if (x < menuRight + 4 || height < 220) {
-                        return;
-                    }
                     boolean compact = width < 290;
                     int vanillaMenuHeight = 166;
                     int menuTop = (screenHeight - vanillaMenuHeight) / 2;

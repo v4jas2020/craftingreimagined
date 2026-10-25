@@ -46,7 +46,9 @@ public final class CraftingSidebar {
             int previewX,
             int previewY,
             int previewWidth,
-            int previewHeight
+            int previewHeight,
+            RecipeEntry.RecipeType stationType
+
     ) {
         this.craftingTableScreen = craftingTableScreen;
         this.stationType = stationType;
