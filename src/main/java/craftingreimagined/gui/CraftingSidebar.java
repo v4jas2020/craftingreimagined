@@ -6,7 +6,6 @@ import craftingreimagined.crafting.MaterialAvailability;
 import craftingreimagined.recipe.RecipeEntry;
 import craftingreimagined.recipe.RecipeIndex;
 
-import net.fabricmc.loader.impl.lib.sat4j.pb.constraints.MinCardConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -44,16 +43,7 @@ public final class CraftingSidebar {
     ) {
         this.craftingTableScreen = craftingTableScreen;
         this.compact = compact;
-        int leftWidth = compact
-                ? width
-                : Math.min(
-                        205,
-                        Math.max(145, width * 2 / 5)
-        );
-        int rightX = x + leftWidth + 8;
-        int rightWidth = compact
-                ? 0
-                : width - leftWidth - 8;
+        int leftWidth = width;
 
         searchField = new SearchField(
                 Minecraft.getInstance().font,
@@ -89,9 +79,9 @@ public final class CraftingSidebar {
         );
 
         recipeView = new RecipeView(
-              compact ? x + 4 : rightX,
+              x + 4,
                 y + 4,
-                compact ? Math.max(100, width - 8) : rightWidth,
+                Math.max(100, width - 8),
                 height - 8
         );
 
@@ -152,9 +142,6 @@ public final class CraftingSidebar {
         register.accept(filterButton);
         register.accept(searchField);
         register.accept(recipeGrid);
-        if (!compact) {
-            register.accept(recipeView);
-        }
 
         if (craftingTableScreen) {
             amountSelector.registerWidgets(register);
